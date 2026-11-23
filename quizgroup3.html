@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Tech Live | Host & QR Quiz Arena</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b0d24;
+      --bg-card: #15193d;
+      --bg-card-soft: #1e2354;
+      --neon-red: #ef4444;
+      --neon-blue: #3b82f6;
+      --neon-purple: #a855f7;
+      --glow-purple: rgba(168, 85, 247, 0.35);
+      --glow-blue: rgba(59, 130, 246, 0.35);
+      --glow-red: rgba(239, 68, 68, 0.35);
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+      --text-main: #f8faff;
+      --text-muted: #c7d2fe;
+      --border-mix: rgba(168, 85, 247, 0.32);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 15%, rgba(239, 68, 68, 0.22), transparent 42%),
+        radial-gradient(circle at 88% 20%, rgba(59, 130, 246, 0.25), transparent 45%),
+        radial-gradient(circle at 50% 95%, rgba(168, 85, 247, 0.24), transparent 50%),
+        var(--bg-dark);
+      color: var(--text-main);
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: rgba(21, 25, 61, 0.88);
+      border: 1px solid var(--border-mix);
+      border-radius: 18px;
+      padding: 14px 20px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--neon-red), var(--neon-purple), var(--neon-blue));
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 0 22px var(--glow-purple);
+    }
+
+    .role-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.22), rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.22));
+      border: 1px solid var(--neon-purple);
+      color: #f3e8ff;
+    }
+
+    .sync-pill {
+      font-size: 12px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.16);
+      border: 1px solid rgba(59, 130, 246, 0.45);
+      color: #bfdbfe;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 840px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: linear-gradient(160deg, rgba(30, 35, 84, 0.92), rgba(16, 19, 48, 0.96));
+      border: 1px solid var(--border-mix);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+    }
+
+    .hero-banner {
+      background: linear-gradient(125deg, var(--neon-red) 0%, var(--neon-purple) 52%, var(--neon-blue) 100%);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 32px var(--glow-purple);
+    }
+
+    .hero-banner h1 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .hero-banner p {
+      color: #f8fafc;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.14s ease, opacity 0.14s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-red), var(--neon-purple), var(--neon-blue));
+      color: #fff;
+      box-shadow: 0 8px 22px var(--glow-blue);
+    }
+
+    .btn-secondary {
+      background: rgba(59, 130, 246, 0.16);
+      color: var(--text-main);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-box {
+      background: rgba(11, 13, 36, 0.65);
+      border: 1px solid var(--border-mix);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fca5a5, #e9d5ff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .player-list, .lb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 290px;
+      overflow-y: auto;
+    }
+
+    .player-item, .lb-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 14, 38, 0.72);
+      border: 1px solid var(--border-mix);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+    }
+
+    .lb-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
+      margin-right: 10px;
+      background: linear-gradient(135deg, var(--neon-red), var(--neon-blue));
+    }
+
+    .status-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .answered {
+      background: rgba(34, 197, 94, 0.18);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+
+    .waiting {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 14px;
+      border-radius: 16px;
+      display: inline-grid;
+      place-items: center;
+      margin: 14px auto;
+      border: 3px solid var(--neon-purple);
+    }
+
+    .qr-wrap {
+      text-align: center;
+    }
+
+    .room-code {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #f87171, #c084fc, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .join-link {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-mix);
+      background: rgba(10, 12, 32, 0.85);
+      color: #fff;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(15, 19, 52, 0.82);
+      border: 1px solid var(--border-mix);
+      color: var(--text-main);
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--neon-blue);
+      background: rgba(59, 130, 246, 0.22);
+    }
+
+    .option-btn.selected {
+      border-color: var(--neon-purple);
+      background: rgba(168, 85, 247, 0.25);
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .warn-banner {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fecaca;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">CT</div>
+        <div>
+          <div style="font-weight: 800; font-size: 16px;">Creative Tech Live</div>
+          <div class="muted">20-Item Interactive Quiz Arena</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span id="syncStatusPill" class="sync-pill">Sync: Connecting...</span>
+        <span id="roleBadge" class="role-pill">HOST VIEW</span>
+      </div>
+    </div>
+
+    <div id="missingDbNotice" class="warn-banner hidden">
+      <strong>Cross-Device Sync Not Configured Yet:</strong> Add your Firebase Realtime Database URL in <code>FIREBASE_DB_URL</code> inside <code>index.html</code> so phones and laptops sync with each other. (Same-device/tab fallback is active.)
+    </div>
+
+    <!-- ==================== HOST VIEW ==================== -->
+    <section id="hostView" class="grid-2">
+      <div class="card">
+        <div class="hero-banner">
+          <div style="color: #fff; font-weight: 700; font-size: 12px; letter-spacing: 0.6px; margin-bottom: 6px;">HOST CONTROL PANEL • NO NICKNAME NEEDED</div>
+          <h1>Live Creative Tech Quiz Arena</h1>
+          <p>You are the host whether the quiz has started or not. Players scan the QR code to join, wait for your signal, and you can track live players, answers, and the leaderboard.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div id="hostPlayerCount" class="stat-num">0</div>
+            <div class="stat-label">Joined Players</div>
+          </div>
+          <div class="stat-box">
+            <div id="hostAnsweredCount" class="stat-num">0</div>
+            <div class="stat-label">Answered Current Q</div>
+          </div>
+          <div class="stat-box">
+            <div id="hostQuestionNum" class="stat-num">Lobby</div>
+            <div class="stat-label">Session Status</div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="startQuizBtn" class="btn btn-primary" onclick="hostStartQuiz()">Start Quiz for Players</button>
+          <button id="nextQuestionBtn" class="btn btn-secondary" onclick="hostNextQuestion()" disabled>Next Question</button>
+          <button class="btn btn-secondary" onclick="hostResetLobby()">Reset Lobby</button>
+        </div>
+
+        <div id="hostCurrentQuestionBox" class="card hidden" style="margin-top: 18px; padding: 16px;">
+          <div class="muted">ACTIVE QUESTION</div>
+          <div id="hostQuestionText" style="font-weight: 700; margin-top: 6px;"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Players & Live Answer Status</div>
+          <div id="hostPlayerList" class="player-list">
+            <div class="muted">No players joined yet. Scan the QR code to join as a player.</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 22px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Live Leaderboard</div>
+          <div id="hostLeaderboard" class="lb-list">
+            <div class="muted">Scores will appear here as players join and answer.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card qr-wrap">
+        <div class="muted">SCAN QR TO JOIN AS PLAYER</div>
+        <div id="roomCodeDisplay" class="room-code" style="margin-top: 4px;">CT-2026</div>
+        <div class="qr-box">
+          <div id="qrcode"></div>
+        </div>
+        <p class="muted">Only players scanning this QR code enter the quiz flow.</p>
+        <a id="playerJoinUrlText" class="join-link" href="#" target="_blank"></a>
+        <div class="btn-row" style="justify-content: center;">
+          <button class="btn btn-secondary" onclick="copyJoinLink()">Copy Player Link</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PLAYER VIEW ==================== -->
+    <section id="playerView" class="card hidden">
+      <!-- Step 1: Enter Nickname -->
+      <div id="playerJoinStep">
+        <div class="role-pill" style="margin-bottom: 12px;">PLAYER JOIN</div>
+        <h2>Enter Your Nickname</h2>
+        <p class="muted" style="margin-top: 6px;">Room <strong id="playerRoomLabel">CT-2026</strong> • You will wait in the lobby until the host starts the quiz.</p>
+        <input id="nicknameInput" type="text" maxlength="24" placeholder="e.g., Kara / Player 1" />
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="playerJoinRoom()">Join Waiting Lobby</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Waiting for Host Signal -->
+      <div id="playerWaitingStep" class="hidden">
+        <div class="role-pill" style="margin-bottom: 12px;">WAITING FOR HOST</div>
+        <h2>You're In, <span id="playerNameDisplay"></span>!</h2>
+        <p class="muted" style="margin-top: 6px;">Waiting for the host's signal to start the 20-item Creative Tech quiz...</p>
+
+        <div style="margin-top: 18px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Players in Room</div>
+          <div id="waitingPlayerList" class="player-list"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Leaderboard</div>
+          <div id="waitingLeaderboard" class="lb-list"></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Active Quiz -->
+      <div id="playerQuizStep" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span id="qProgressBadge" class="role-pill">Question 1 of 20</span>
+          <span class="muted">Player: <strong id="activePlayerName"></strong> • Score: <strong id="playerScore">0</strong></span>
+        </div>
+
+        <h2 id="questionPrompt" style="margin-top: 16px; line-height: 1.4;"></h2>
+        <div id="optionsContainer" class="options-grid"></div>
+
+        <div id="answerFeedback" class="muted" style="margin-top: 12px; font-weight: 600;"></div>
+
+        <div style="margin-top: 22px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Who Has Answered This Question?</div>
+          <div id="quizAnsweredList" class="player-list"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Live Leaderboard</div>
+          <div id="quizLeaderboard" class="lb-list"></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Finished -->
+      <div id="playerFinishedStep" class="hidden" style="text-align: center; padding: 24px 8px;">
+        <h2>Quiz Complete!</h2>
+        <p class="muted" style="margin-top: 8px;">Great job, <strong id="finalPlayerName"></strong>!</p>
+        <div style="font-size: 32px; font-weight: 800; margin: 16px 0;" class="stat-num">
+          <span id="finalScore">0</span> / 20
+        </div>
+
+        <div style="text-align: left; max-width: 520px; margin: 20px auto;">
+          <div style="font-weight: 700; margin-bottom: 10px;">Final Leaderboard</div>
+          <div id="finalLeaderboard" class="lb-list"></div>
+        </div>
+
+        <button class="btn btn-primary" onclick="location.reload()">Back to Lobby</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Replace with your Firebase Realtime Database URL, e.g.:
+    // const FIREBASE_DB_URL = "https://your-project-id-default-rtdb.firebaseio.com";
+    const FIREBASE_DB_URL = "";
+
+    const QUESTIONS = [
+      { q: "1. Which HTML tag creates a hyperlink?", opts: ["<a>", "<link>", "<href>", "<url>"], ans: 0 },
+      { q: "2. Which CSS property changes text color?", opts: ["font-color", "text-style", "color", "background"], ans: 2 },
+      { q: "3. Which JavaScript keyword declares a block-scoped variable?", opts: ["var", "let", "int", "define"], ans: 1 },
+      { q: "4. What does CSV stand for?", opts: ["Code Style Value", "Comma-Separated Values", "Client Server View", "Core System Variable"], ans: 1 },
+      { q: "5. Which tool is used to melt solder onto electronic joints?", opts: ["Multimeter", "Soldering iron", "Breadboard", "Oscilloscope"], ans: 1 },
+      { q: "6. Which HTML element defines the largest heading?", opts: ["<h6>", "<head>", "<h1>", "<header>"], ans: 2 },
+      { q: "7. Which CSS layout system arranges items in 1D rows or columns?", opts: ["Flexbox", "Marquee", "Frameset", "Blink"], ans: 0 },
+      { q: "8. Which method attaches a click listener in JavaScript?", opts: ["onClick()", "addEventListener()", "listenClick()", "bindEvent()"], ans: 1 },
+      { q: "9. Why is flux used during soldering?", opts: ["To cool the tip", "To remove oxidation and improve wetting", "To cut wire insulation", "To store battery charge"], ans: 1 },
+      { q: "10. Which file extension is used for a standard web page?", opts: [".html", ".exe", ".py", ".mp3"], ans: 0 },
+      { q: "11. Which CSS unit scales relative to the root element font size?", opts: ["px", "rem", "cm", "deg"], ans: 1 },
+      { q: "12. What does JSON.stringify() do in JavaScript?", opts: ["Parses JSON to object", "Converts a JS value to a JSON string", "Deletes local storage", "Reloads the page"], ans: 1 },
+      { q: "13. Which safety item protects eyes from solder splashes?", opts: ["Safety goggles", "Earplugs", "Knee pads", "Sandals"], ans: 0 },
+      { q: "14. Which attribute makes an image accessible to screen readers?", opts: ["src", "alt", "width", "loop"], ans: 1 },
+      { q: "15. Which CSS property controls space outside an element's border?", opts: ["padding", "margin", "gap", "z-index"], ans: 1 },
+      { q: "16. What does DOM stand for in web development?", opts: ["Document Object Model", "Data Output Module", "Digital Order Map", "Display Overlay Mode"], ans: 0 },
+      { q: "17. What happens if a soldering iron is left too hot for too long?", opts: ["Tip oxidizes faster", "Solder turns into gold", "PCB becomes waterproof", "Battery charges"], ans: 0 },
+      { q: "18. Which HTML tag embeds client-side JavaScript?", opts: ["<js>", "<script>", "<code>", "<javascript>"], ans: 1 },
+      { q: "19. Which CSS property rounds corners of a box?", opts: ["border-radius", "corner-curve", "box-round", "edge-smooth"], ans: 0 },
+      { q: "20. Which array method transforms every item and returns a new array?", opts: ["push()", "pop()", "map()", "splice()"], ans: 2 }
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const roomCode = (params.get("room") || "CT-2026").toUpperCase();
+    const isPlayerMode = params.get("role") === "player";
+
+    const STORAGE_KEY = `ct_live_room_${roomCode}`;
+    const channel = new BroadcastChannel(`ct_live_channel_${roomCode}`);
+
+    let myPlayerId = sessionStorage.getItem(`ct_pid_${roomCode}`) || null;
+    let currentState = defaultState();
+
+    function defaultState() {
+      return {
+        status: "lobby", // "lobby" | "active" | "finished"
+        questionIndex: 0,
+        players: {} // id -> { id, name, answeredIndex, score }
+      };
+    }
+
+    function normalizeState(raw) {
+      if (!raw || typeof raw !== "object") return defaultState();
+      return {
+        status: raw.status || "lobby",
+        questionIndex: Number.isInteger(raw.questionIndex) ? raw.questionIndex : 0,
+        players: raw.players && typeof raw.players === "object" ? raw.players : {}
+      };
+    }
+
+    function loadLocalState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return normalizeState(raw ? JSON.parse(raw) : null);
+      } catch {
+        return defaultState();
+      }
+    }
+
+    function hasFirebase() {
+      return Boolean(FIREBASE_DB_URL && FIREBASE_DB_URL.trim().startsWith("https://"));
+    }
+
+    function getFirebaseRoomUrl() {
+      const cleanBase = FIREBASE_DB_URL.trim().replace(/\/+$/, "");
+      return `${cleanBase}/rooms/${encodeURIComponent(roomCode)}.json`;
+    }
+
+    async function pushState(nextState) {
+      const cleanState = normalizeState(nextState);
+      currentState = cleanState;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanState));
+      channel.postMessage({ type: "STATE_UPDATE", state: cleanState });
+      renderAll();
+
+      if (hasFirebase()) {
+        try {
+          await fetch(getFirebaseRoomUrl(), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cleanState)
+          });
+          setSyncBadge("Sync: Live Cloud", true);
+        } catch {
+          setSyncBadge("Sync: Retry...", false);
+        }
+      }
+    }
+
+    async function pullCloudStateOnce() {
+      if (!hasFirebase()) {
+        currentState = loadLocalState();
+        renderAll();
+        return;
+      }
+      try {
+        const res = await fetch(getFirebaseRoomUrl(), { cache: "no-store" });
+        if (!res.ok) throw new Error("Network response not ok");
+        const data = await res.json();
+        const next = normalizeState(data);
+        currentState = next;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        setSyncBadge("Sync: Live Cloud", true);
+        renderAll();
+      } catch {
+        setSyncBadge("Sync: Offline/Error", false);
+      }
+    }
+
+    function setSyncBadge(text, ok) {
+      const pill = document.getElementById("syncStatusPill");
+      pill.textContent = text;
+      pill.style.borderColor = ok ? "rgba(34, 197, 94, 0.55)" : "rgba(239, 68, 68, 0.55)";
+      pill.style.color = ok ? "#86efac" : "#fecaca";
+    }
+
+    channel.onmessage = (event) => {
+      if (event.data && event.data.type === "STATE_UPDATE") {
+        currentState = normalizeState(event.data.state);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentState));
+        renderAll();
+      }
+    };
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === STORAGE_KEY) {
+        currentState = loadLocalState();
+        renderAll();
+      }
+    });
+
+    function getPlayerJoinUrl() {
+      const base = `${window.location.origin}${window.location.pathname}`;
+      return `${base}?room=${encodeURIComponent(roomCode)}&role=player`;
+    }
+
+    function copyJoinLink() {
+      navigator.clipboard?.writeText(getPlayerJoinUrl());
+      alert("Player join link copied!");
+    }
+
+    async function hostStartQuiz() {
+      await pullCloudStateOnce();
+      const state = normalizeState(currentState);
+      state.status = "active";
+      state.questionIndex = 0;
+      Object.values(state.players).forEach((p) => {
+        p.answeredIndex = null;
+        p.score = 0;
+      });
+      await pushState(state);
+    }
+
+    async function hostNextQuestion() {
+      await pullCloudStateOnce();
+      const state = normalizeState(currentState);
+      if (state.questionIndex + 1 < QUESTIONS.length) {
+        state.questionIndex += 1;
+        Object.values(state.players).forEach((p) => {
+          p.answeredIndex = null;
+        });
+      } else {
+        state.status = "finished";
+      }
+      await pushState(state);
+    }
+
+    async function hostResetLobby() {
+      await pushState(defaultState());
+    }
+
+    async function playerJoinRoom() {
+      const input = document.getElementById("nicknameInput");
+      const name = input.value.trim();
+      if (!name) {
+        alert("Please enter a nickname first.");
+        return;
+      }
+
+      if (!myPlayerId) {
+        myPlayerId = "p_" + Math.random().toString(36).slice(2, 9);
+        sessionStorage.setItem(`ct_pid_${roomCode}`, myPlayerId);
+      }
+
+      await pullCloudStateOnce();
+      const state = normalizeState(currentState);
+      state.players[myPlayerId] = {
+        id: myPlayerId,
+        name,
+        answeredIndex: null,
+        score: 0
+      };
+      await pushState(state);
+    }
+
+    async function playerSelectAnswer(optionIndex) {
+      if (!myPlayerId) return;
+      await pullCloudStateOnce();
+      const state = normalizeState(currentState);
+      if (state.status !== "active") return;
+      const player = state.players[myPlayerId];
+      if (!player || (player.answeredIndex !== null && player.answeredIndex !== undefined)) return;
+
+      const qObj = QUESTIONS[state.questionIndex];
+      player.answeredIndex = optionIndex;
+      if (optionIndex === qObj.ans) {
+        player.score = (player.score || 0) + 1;
+      }
+      await pushState(state);
+    }
+
+    function renderPlayerList(containerId, playersObj, showAnswerStatus) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const list = Object.values(playersObj || {});
+      if (!list.length) {
+        el.innerHTML = `<div class="muted">No players in the room yet.</div>`;
+        return;
+      }
+
+      el.innerHTML = list
+        .map((p) => {
+          const hasAnswered = p.answeredIndex !== null && p.answeredIndex !== undefined;
+          const badge = showAnswerStatus
+            ? hasAnswered
+              ? `<span class="status-badge answered">Answered (${p.score || 0})</span>`
+              : `<span class="status-badge waiting">Waiting...</span>`
+            : `<span class="status-badge answered">Ready (${p.score || 0} pts)</span>`;
+
+          return `
+            <div class="player-item">
+              <span><strong>${escapeHtml(p.name)}</strong></span>
+              ${badge}
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderLeaderboard(containerId, playersObj) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const sorted = Object.values(playersObj || {}).sort((a, b) => (b.score || 0) - (a.score || 0));
+      if (!sorted.length) {
+        el.innerHTML = `<div class="muted">No players ranked yet.</div>`;
+        return;
+      }
+
+      el.innerHTML = sorted
+        .map((p, idx) => `
+          <div class="lb-item">
+            <div style="display: flex; align-items: center;">
+              <span class="lb-rank">#${idx + 1}</span>
+              <strong>${escapeHtml(p.name)}</strong>
+            </div>
+            <span class="status-badge answered">${p.score || 0} pts</span>
+          </div>
+        `)
+        .join("");
+    }
+
+    function renderHost(state) {
+      const players = Object.values(state.players || {});
+      const answeredCount = players.filter((p) => p.answeredIndex !== null && p.answeredIndex !== undefined).length;
+
+      document.getElementById("hostPlayerCount").textContent = String(players.length);
+      document.getElementById("hostAnsweredCount").textContent = String(answeredCount);
+      document.getElementById("hostQuestionNum").textContent =
+        state.status === "active"
+          ? `Q${state.questionIndex + 1}/20`
+          : state.status === "finished"
+          ? "Done"
+          : "Lobby";
+
+      document.getElementById("startQuizBtn").disabled = state.status === "active";
+      document.getElementById("nextQuestionBtn").disabled = state.status !== "active";
+
+      const qBox = document.getElementById("hostCurrentQuestionBox");
+      if (state.status === "active") {
+        qBox.classList.remove("hidden");
+        document.getElementById("hostQuestionText").textContent = QUESTIONS[state.questionIndex].q;
+      } else {
+        qBox.classList.add("hidden");
+      }
+
+      renderPlayerList("hostPlayerList", state.players, true);
+      renderLeaderboard("hostLeaderboard", state.players);
+    }
+
+    function renderPlayer(state) {
+      document.getElementById("playerRoomLabel").textContent = roomCode;
+
+      const joinStep = document.getElementById("playerJoinStep");
+      const waitStep = document.getElementById("playerWaitingStep");
+      const quizStep = document.getElementById("playerQuizStep");
+      const doneStep = document.getElementById("playerFinishedStep");
+
+      joinStep.classList.add("hidden");
+      waitStep.classList.add("hidden");
+      quizStep.classList.add("hidden");
+      doneStep.classList.add("hidden");
+
+      const currentPlayer = myPlayerId ? state.players[myPlayerId] : null;
+
+      if (!currentPlayer) {
+        joinStep.classList.remove("hidden");
+        return;
+      }
+
+      if (state.status === "lobby") {
+        waitStep.classList.remove("hidden");
+        document.getElementById("playerNameDisplay").textContent = currentPlayer.name;
+        renderPlayerList("waitingPlayerList", state.players, false);
+        renderLeaderboard("waitingLeaderboard", state.players);
+        return;
+      }
+
+      if (state.status === "finished") {
+        doneStep.classList.remove("hidden");
+        document.getElementById("finalPlayerName").textContent = currentPlayer.name;
+        document.getElementById("finalScore").textContent = String(currentPlayer.score || 0);
+        renderLeaderboard("finalLeaderboard", state.players);
+        return;
+      }
+
+      quizStep.classList.remove("hidden");
+      const qObj = QUESTIONS[state.questionIndex];
+      document.getElementById("qProgressBadge").textContent = `Question ${state.questionIndex + 1} of ${QUESTIONS.length}`;
+      document.getElementById("activePlayerName").textContent = currentPlayer.name;
+      document.getElementById("playerScore").textContent = String(currentPlayer.score || 0);
+      document.getElementById("questionPrompt").textContent = qObj.q;
+
+      const optsEl = document.getElementById("optionsContainer");
+      const locked = currentPlayer.answeredIndex !== null && currentPlayer.answeredIndex !== undefined;
+
+      optsEl.innerHTML = qObj.opts
+        .map((optText, idx) => {
+          const isChosen = currentPlayer.answeredIndex === idx;
+          return `
+            <button
+              class="option-btn ${isChosen ? "selected" : ""}"
+              ${locked ? "disabled" : ""}
+              onclick="playerSelectAnswer(${idx})"
+            >
+              ${escapeHtml(optText)}
+            </button>
+          `;
+        })
+        .join("");
+
+      const feedbackEl = document.getElementById("answerFeedback");
+      if (locked) {
+        const correct = currentPlayer.answeredIndex === qObj.ans;
+        feedbackEl.textContent = correct
+          ? "Answer locked in — Correct! Waiting for the host to move to the next question."
+          : `Answer locked in — Correct answer: ${qObj.opts[qObj.ans]}. Waiting for the host.`;
+      } else {
+        feedbackEl.textContent = "Choose an option to lock in your answer.";
+      }
+
+      renderPlayerList("quizAnsweredList", state.players, true);
+      renderLeaderboard("quizLeaderboard", state.players);
+    }
+
+    function renderAll() {
+      const state = normalizeState(currentState);
+      if (isPlayerMode) {
+        document.getElementById("roleBadge").textContent = "PLAYER VIEW";
+        document.getElementById("hostView").classList.add("hidden");
+        document.getElementById("playerView").classList.remove("hidden");
+        renderPlayer(state);
+      } else {
+        document.getElementById("roleBadge").textContent = "HOST VIEW";
+        document.getElementById("hostView").classList.remove("hidden");
+        document.getElementById("playerView").classList.add("hidden");
+        renderHost(state);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    const joinUrl = getPlayerJoinUrl();
+    document.getElementById("roomCodeDisplay").textContent = roomCode;
+    const linkEl = document.getElementById("playerJoinUrlText");
+    linkEl.textContent = joinUrl;
+    linkEl.href = joinUrl;
+
+    if (typeof QRCode !== "undefined") {
+      new QRCode(document.getElementById("qrcode"), {
+        text: joinUrl,
+        width: 176,
+        height: 176
+      });
+    }
+
+    currentState = loadLocalState();
+    renderAll();
+
+    if (hasFirebase()) {
+      setSyncBadge("Sync: Connecting...", false);
+      pullCloudStateOnce();
+      setInterval(pullCloudStateOnce, 1200);
+    } else {
+      document.getElementById("missingDbNotice").classList.remove("hidden");
+      setSyncBadge("Sync: Local Only", false);
+    }
+  </script>
+</body>
+</html>
